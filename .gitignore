@@ -1,0 +1,25 @@
+# Ignore common video file formats
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mpeg
+*.mpg
+*.3gp
+*.m4v
+
+
+# Ignore common archive file formats
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+*.xz
+*.tar.gz
+*.tar.bz2
+*.tar.xz

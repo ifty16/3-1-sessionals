@@ -4,11 +4,11 @@ import heapq
 BOARD_SIZE = 2  # or "manhattan" or "euclidean" or "linear_conflict"
 
 INITIAL_STATE = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
-INITIAL_STATE[0][0] = 0
-INITIAL_STATE[0][1] = 1
+INITIAL_STATE[0][0] = 1
+INITIAL_STATE[0][1] = 3
 # INITIAL_STATE[0][2] = 3
-INITIAL_STATE[1][0] = 2
-INITIAL_STATE[1][1] = 3
+INITIAL_STATE[1][0] = 0
+INITIAL_STATE[1][1] = 2
 # INITIAL_STATE[1][2] = 6
 # INITIAL_STATE[2][0] = 8
 # INITIAL_STATE[2][1] = 7
@@ -18,13 +18,13 @@ INITIAL_STATE[1][1] = 3
 GOAL_STATE = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
 GOAL_STATE[0][0] = 1
 GOAL_STATE[0][1] = 2
-GOAL_STATE[0][2] = 3
-GOAL_STATE[1][0] = 4
-GOAL_STATE[1][1] = 5
-GOAL_STATE[1][2] = 6
-GOAL_STATE[2][0] = 7
-GOAL_STATE[2][1] = 8
-GOAL_STATE[2][2] = 0
+# GOAL_STATE[0][2] = 3
+GOAL_STATE[1][0] = 3
+GOAL_STATE[1][1] = 0
+# GOAL_STATE[1][2] = 6
+# GOAL_STATE[2][0] = 7
+# GOAL_STATE[2][1] = 8
+# GOAL_STATE[2][2] = 0
 
 
 def hamming_distance(state1, state2):
@@ -171,6 +171,8 @@ class N_Puzzle:
         self.current_state = BoardState(self.initial_state)
         self.huristic_function = huristic_function
         self.move_count = 0
+        self.expanded_count = 0
+        self.explored_count = 0
 
     def is_solvable(self):
         # Count inversions in the initial state
@@ -200,7 +202,7 @@ class N_Puzzle:
     def solve(self):
         if not self.is_solvable():
             print("The puzzle is not solvable.")
-            return None
+            return None, None, None
         # implementing A* algorithm 
 
         #initializing
@@ -212,11 +214,13 @@ class N_Puzzle:
         expanded_nodes = set() #closed list
         open_list = []
         heapq.heappush(open_list, start_State)
+        self.explored_count = 1
 
         # loop until we find the goal state 
         while open_list:
             current_state = heapq.heappop(open_list)
             expanded_nodes.add(current_state)
+            self.expanded_count += 1
 
             if current_state.is_goal_state():
                 path = []
@@ -227,9 +231,9 @@ class N_Puzzle:
                 path.reverse()
                 print(f"Minimum number of moves = {len(path) - 1}")
 
-                return path
+                return path , self.expanded_count, self.explored_count
             
-            expanded_nodes.add(current_state)  # Add the current state to the closed list
+            # expanded_nodes.add(current_state)  # Add the current state to the closed list
             # explore the neighbors of the current state
             neighbors = current_state.generate_neighbors()
             for neighbor in neighbors:
@@ -252,11 +256,17 @@ class N_Puzzle:
                     else:
                         # Add the neighbor to the open list
                         heapq.heappush(open_list, neighbor)
+                        self.explored_count += 1
 
-    def print_path(self, path):
+    def print_path(self, path,explored_count, expanded_count):
         for state in path:
             state.print_state()
             print()
+
+        print(f"Total number of expanded nodes: {expanded_count}")
+        print(f"Total number of explored nodes: {explored_count}")
+
+        
                         
                     
                     
@@ -276,7 +286,7 @@ calculateConflict(sample_board.stateArray2D, GOAL_STATE)
 print("Linear conflict distance:", linear_conflict_distance(sample_board.stateArray2D, GOAL_STATE))
 
 n_puzzle = N_Puzzle(INITIAL_STATE, hamming_distance, GOAL_STATE)
-path = n_puzzle.solve()
+path , explored_count , expanded_count = n_puzzle.solve()
 if path:
     print("Path to goal state:")
-    n_puzzle.print_path(path)
+    n_puzzle.print_path(path, explored_count, expanded_count)
